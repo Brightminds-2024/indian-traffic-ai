@@ -1,0 +1,29 @@
+<!-- templates/list.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Files List</title>
+</head>
+<body>
+  <h2>🎥 Videos</h2>
+  <ul>
+    {% for video in videos %}
+      <li>
+        {{ video }}
+        <a href="/live_video/{{ video }}">▶️ Detect</a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <h2>🖼️ Images</h2>
+  <ul>
+    {% for image in images %}
+      <li>
+        {{ image }}
+        <a href="/detect_image/{{ image }}" target="_blank">📷 Detect</a>
+      </li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
+
