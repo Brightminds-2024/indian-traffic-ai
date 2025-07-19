@@ -1,0 +1,24 @@
+from ultralytics import YOLO
+import cv2
+
+model = YOLO("yolov8n.pt")  # or your custom model path
+
+def detect_objects():
+    cap = cv2.VideoCapture("traffic.mp4")  # Change this to use webcam or another video file
+
+    while True:
+        success, frame = cap.read()
+        if not success:
+            break
+
+        results = model(frame)[0]
+        annotated_frame = results.plot()
+
+        ret, buffer = cv2.imencode('.jpg', annotated_frame)
+        frame_bytes = buffer.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+    cap.release()
+
