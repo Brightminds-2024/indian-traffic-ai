@@ -1,12 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Detected Image</title>
+    <title>🎯 Detected Image</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        h1 {
+            color: #ffdd57;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        img {
+            border: 6px solid #ffdd57;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 221, 87, 0.6);
+            max-width: 90%;
+            height: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            margin-right: 10px;
+            padding: 10px 20px;
+            background-color: #ffdd57;
+            color: #000;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background-color: #fff176;
+        }
+
+        form {
+            display: inline;
+        }
+    </style>
 </head>
-<body style="text-align:center;">
+<body>
     <h1>🎯 Detected Image</h1>
-    <img src="{{ url_for('uploaded_file', filename=filename) }}" width="720">
-    <br><a href="/">⬅️ Back</a>
+    <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Detected Result">
+    <br><br>
+    <a class="btn" href="/">⬅️ Back to Home</a>
+    <form action="{{ url_for('delete_file') }}" method="post">
+        <input type="hidden" name="filename" value="{{ filename }}">
+        <button type="submit" class="btn">🗑️ Delete Image</button>
+    </form>
 </body>
 </html>
 

@@ -7,7 +7,7 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: url('https://wallpaper.dog/large/5529102.jpg') no-repeat center center fixed;
+            background: url("https://wallpaper.dog/large/5529102.jpg") no-repeat center center fixed;
             background-size: cover;
             color: white;
             text-align: center;
@@ -75,11 +75,21 @@
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s ease-in-out;
         }
 
         input[type="submit"]:hover {
             background: #fff176;
+        }
+
+        .btn-delete {
+            background-color: red;
+            color: white;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8em;
+            cursor: pointer;
+            margin-left: 10px;
         }
 
         @keyframes slideDown {
@@ -87,14 +97,57 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        @media (max-width: 768px) {
-            li {
-                width: 90%;
-            }
+        .chatbot-box {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ffdd57;
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 999;
+        }
 
-            input[type="file"], input[type="submit"] {
-                width: 90%;
-            }
+        .chatbot-box h3 {
+            margin-top: 0;
+            color: #ffdd57;
+        }
+
+        .chatbot-messages {
+            height: 200px;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .chatbot-input {
+            display: flex;
+            gap: 5px;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .chatbot-input button {
+            padding: 8px 12px;
+            background-color: #ffdd57;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .chatbot-input button:hover {
+            background-color: #fff176;
         }
     </style>
 </head>
@@ -102,9 +155,20 @@
     <h1>🚦 Real-Time Traffic Detection</h1>
 
     <h2>🎥 Available Videos</h2>
+    <form action="{{ url_for('upload_video') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="video" accept="video/mp4" required>
+        <br>
+        <input type="submit" value="Upload Video">
+    </form>
     <ul>
         {% for video in videos %}
-        <li><a href="{{ url_for('live', video=video) }}">{{ video }}</a></li>
+        <li>
+            <a href="{{ url_for('live', video=video) }}">{{ video }}</a>
+            <form action="{{ url_for('delete_file') }}" method="post" style="display:inline;">
+                <input type="hidden" name="filename" value="{{ video }}">
+                <button type="submit" class="btn-delete">🗑️</button>
+            </form>
+        </li>
         {% endfor %}
     </ul>
 
@@ -118,9 +182,54 @@
     <h2>🖼️ Detected Images</h2>
     <ul>
         {% for image in images %}
-        <li><a href="{{ url_for('uploaded_file', filename=image) }}" target="_blank">{{ image }}</a></li>
+        <li>
+            <a href="{{ url_for('uploaded_file', filename=image) }}" target="_blank">{{ image }}</a>
+            <form action="{{ url_for('delete_file') }}" method="post" style="display:inline;">
+                <input type="hidden" name="filename" value="{{ image }}">
+                <button type="submit" class="btn-delete">🗑️</button>
+            </form>
+        </li>
         {% endfor %}
     </ul>
+
+    <!-- 🤖 AI Chat Widget -->
+    <div class="chatbot-box">
+        <h3>🤖 Ask AI</h3>
+        <div class="chatbot-messages" id="chatbox">
+            <div><strong>AI:</strong> Hi there! How can I help you today?</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="userInput" placeholder="Type your message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("userInput");
+            const chatbox = document.getElementById("chatbox");
+            const userMessage = input.value.trim();
+            if (userMessage === '') return;
+
+            chatbox.innerHTML += `<div><strong>You:</strong> ${userMessage}</div>`;
+            input.value = '';
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userMessage })
+                });
+                const data = await response.json();
+                const aiResponse = data.response || "⚠️ No response.";
+                chatbox.innerHTML += `<div><strong>AI:</strong> ${aiResponse}</div>`;
+                chatbox.scrollTop = chatbox.scrollHeight;
+            } catch (err) {
+                chatbox.innerHTML += `<div><strong>AI:</strong> ⚠️ Network error.</div>`;
+            }
+        }
+    </script>
 </body>
 </html>
 
